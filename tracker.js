@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyState.classList.add('hidden');
             filteredShows.forEach(show => {
                 const showElement = document.createElement('div');
-                showElement.className = "bg-white rounded-lg shadow-lg p-6 border-l-4 border-dark-green hover:shadow-xl transition-shadow duration-200";
+                showElement.className = "bg-beige rounded-lg shadow-lg p-6 border-l-4 border-yellow-500 hover:shadow-xl transition-shadow duration-200";
 
                 const posterHTML = show.image 
                     ? `<img src="${show.image}" alt="Poster for ${show.title}" class="w-28 h-40 object-cover rounded shadow-md flex-shrink-0">`
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span class="px-3 py-1 rounded-full text-sm font-medium bg-light-brown text-white">${show.genre || 'N/A'}</span>
                                 ${show.rating ? `<span class="px-3 py-1 rounded-full text-sm font-medium bg-dark-green text-white">⭐ ${show.rating}/10</span>` : ''}
                             </div>
-                            <div class="bg-beige p-3 rounded-lg mt-2">
+                            <div class="bg-white p-3 rounded-lg mt-2">
                                 <p class="text-medium-brown font-medium mb-1 text-sm">Notes:</p>
                                 <p class="text-dark-brown whitespace-pre-wrap text-sm">${show.notes || 'No notes added.'}</p>
                             </div>
@@ -117,12 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCustomLists() {
         customListsContainer.innerHTML = '';
         if (Object.keys(lists).length === 0) {
-            customListsContainer.innerHTML = `<p class="text-sm text-gray-500">You have no custom lists. Create one above!</p>`;
+            customListsContainer.innerHTML = `<p class="text-sm text-gray-400">You have no custom lists. Create one above!</p>`;
             return;
         }
         for (const listName in lists) {
             const button = document.createElement('button');
-            button.className = `relative pr-8 pl-4 py-2 rounded-lg font-medium transition-colors duration-200 ${currentFilter === listName ? 'bg-dark-green text-white' : 'bg-medium-brown text-white hover:bg-dark-brown'}`;
+            button.className = `relative pr-8 pl-4 py-2 rounded-lg font-medium transition-colors duration-200 ${currentFilter === listName ? 'bg-yellow-600 text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`;
             button.textContent = listName;
             button.setAttribute('data-filter', listName);
             const deleteBtn = document.createElement('span');
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateFilterButtons() {
         filterContainer.querySelectorAll('button').forEach(btn => {
-            btn.className = `px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${btn.getAttribute('data-filter') === currentFilter ? 'bg-dark-green text-white' : 'bg-light-brown text-white hover:bg-medium-brown'}`;
+            btn.className = `px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${btn.getAttribute('data-filter') === currentFilter ? 'bg-yellow-600 text-black' : 'bg-gray-700 text-white hover:bg-gray-600'}`;
         });
     }
 
@@ -162,14 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- CORE LOGIC & EVENT HANDLERS ---
-
-    // Sign Out
     signOutBtn.addEventListener('click', () => {
         localStorage.removeItem('currentUser');
         window.location.href = 'index.html';
     });
 
-    // Add a Show
     async function addShow(e) {
         e.preventDefault();
         const titleInput = document.getElementById('showTitle');
@@ -205,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     addShowForm.addEventListener('submit', addShow);
 
-    // Create a List
     createListForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const listNameInput = document.getElementById('listName');
@@ -220,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Filter Button Clicks
     filterContainer.addEventListener('click', (e) => {
         if (e.target.tagName === 'BUTTON') {
             currentFilter = e.target.getAttribute('data-filter');
@@ -235,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Show Card Button Clicks
     showsList.addEventListener('click', (e) => {
         const target = e.target.closest('button');
         if (!target) return;
@@ -257,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Modal Form Submissions and Cancellations
     addToListForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const selectedListInput = document.querySelector('input[name="listSelection"]:checked');
