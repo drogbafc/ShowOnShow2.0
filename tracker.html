@@ -106,7 +106,7 @@
             <p class="text-gray-300">Add a new show or select a different filter.</p>
         </div>
     
-        <!-- All Modals (Unchanged) -->
+        <!-- All Modals -->
         <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg border-t-8 border-dark-green">
                 <h2 class="text-2xl font-semibold text-dark-green mb-4">Edit Show</h2>
@@ -170,6 +170,27 @@
         </div>
     </div>
     
-    <script src="tracker.js" defer></script>
+    <!-- Firebase SDK Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        
+        // =====================================================================================
+        // PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
+        // This MUST be the same config object as in your index.html file
+        // =====================================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTDOxMfgZxzORVcUZapodpNYmgwOEm-eo",
+              authDomain: "ipishowtracker.firebaseapp.com",
+              projectId: "ipishowtracker",
+              storageBucket: "ipishowtracker.firebasestorage.app",
+              messagingSenderId: "789432982268",
+              appId: "1:789432982268:web:faa0f43cd3fbc6509c5579",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.firebaseApp = app; // Make the app instance available globally
+    </script>
+
+    <script src="tracker.js" type="module"></script>
 </body>
 </html>

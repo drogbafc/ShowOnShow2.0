@@ -6,7 +6,6 @@
     <title>Welcome - TV Show Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Added this configuration to ensure custom colors are available
         tailwind.config = {
             theme: {
                 extend: {
@@ -35,8 +34,8 @@
             
             <form id="authForm" class="bg-black bg-opacity-20 p-8 rounded-lg shadow-2xl space-y-6">
                 <div>
-                    <label for="username" class="sr-only">Username</label>
-                    <input type="text" id="username" placeholder="Username" required
+                    <label for="email" class="sr-only">Email</label>
+                    <input type="email" id="email" placeholder="Email" required
                            class="w-full bg-white bg-opacity-10 text-white px-4 py-3 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
                 </div>
                 <div>
@@ -72,6 +71,26 @@
         </div>
     </div>
 
-    <script src="login.js"></script>
+    <!-- Firebase SDK Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        
+        // =====================================================================================
+        // PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
+        // =====================================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTDOxMfgZxzORVcUZapodpNYmgwOEm-eo",
+              authDomain: "ipishowtracker.firebaseapp.com",
+              projectId: "ipishowtracker",
+              storageBucket: "ipishowtracker.firebasestorage.app",
+              messagingSenderId: "789432982268",
+              appId: "1:789432982268:web:faa0f43cd3fbc6509c5579",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.firebaseApp = app; // Make the app instance available globally
+    </script>
+
+    <script src="login.js" type="module"></script>
 </body>
 </html>
