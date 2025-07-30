@@ -1,16 +1,291 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>replit</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Show Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'beige': '#F5F5DC',
+                        'dark-green': '#2D4A2B',
+                        'medium-green': '#3A5F38',
+                        'light-green': '#4A7548',
+                        'dark-brown': '#3E2723',
+                        'medium-brown': '#5D4037',
+                        'light-brown': '#8D6E63'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
+<body class="bg-beige min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-dark-green mb-2">📺 TV Show Tracker</h1>
+            <p class="text-medium-brown text-lg">Keep track of your favorite shows, rate them, and add notes</p>
+        </div>
 
-<body>
-  Hello world
-  <script src="script.js"></script>
-</body>
+        <!-- Add Show Form -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8 border-2 border-light-green">
+            <h2 class="text-2xl font-semibold text-dark-green mb-4">Add New Show</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="showTitle" placeholder="Show Title" 
+                       class="px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
+                <select id="showStatus" class="px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
+                    <option value="">Select Status</option>
+                    <option value="watching">Currently Watching</option>
+                    <option value="completed">Completed</option>
+                    <option value="plan-to-watch">Plan to Watch</option>
+                    <option value="dropped">Dropped</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-medium-brown font-medium mb-2">Rating (1-10)</label>
+                    <input type="number" id="showRating" min="1" max="10" placeholder="Rate 1-10"
+                           class="w-full px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-medium-brown font-medium mb-2">Genre</label>
+                    <input type="text" id="showGenre" placeholder="e.g., Drama, Comedy, Sci-Fi"
+                           class="w-full px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-medium-brown font-medium mb-2">Notes</label>
+                <textarea id="showNotes" rows="3" placeholder="Add your thoughts, favorite episodes, etc..."
+                          class="w-full px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none resize-none"></textarea>
+            </div>
+            <button onclick="addShow()" 
+                    class="w-full bg-dark-green text-white py-3 px-6 rounded-lg font-semibold hover:bg-medium-green transition-colors duration-200">
+                Add Show to Tracker
+            </button>
+        </div>
 
+        <!-- Filter Tabs -->
+        <div class="flex flex-wrap gap-2 mb-6">
+            <button onclick="filterShows('all')" id="filter-all"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-dark-green text-white">
+                All Shows
+            </button>
+            <button onclick="filterShows('watching')" id="filter-watching"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown">
+                Currently Watching
+            </button>
+            <button onclick="filterShows('completed')" id="filter-completed"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown">
+                Completed
+            </button>
+            <button onclick="filterShows('plan-to-watch')" id="filter-plan-to-watch"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown">
+                Plan to Watch
+            </button>
+            <button onclick="filterShows('dropped')" id="filter-dropped"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown">
+                Dropped
+            </button>
+        </div>
+
+        <!-- Shows List -->
+        <div id="showsList" class="space-y-4">
+            <!-- Sample shows will be added here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-12 hidden">
+            <div class="text-6xl mb-4">📺</div>
+            <h3 class="text-xl font-semibold text-medium-brown mb-2">No shows yet!</h3>
+            <p class="text-medium-brown">Add your first TV show to get started tracking your viewing journey.</p>
+        </div>
+    </div>
+
+    <script>
+        let shows = [];
+        let currentFilter = 'all';
+
+        // Add some sample data
+        shows = [
+            {
+                id: 1,
+                title: "Breaking Bad",
+                status: "completed",
+                rating: 10,
+                genre: "Crime Drama",
+                notes: "Absolutely incredible character development. Walter White's transformation is masterful.",
+                dateAdded: new Date()
+            },
+            {
+                id: 2,
+                title: "The Office",
+                status: "watching",
+                rating: 9,
+                genre: "Comedy",
+                notes: "Perfect comfort show. Jim and Pam's relationship is so wholesome!",
+                dateAdded: new Date()
+            },
+            {
+                id: 3,
+                title: "Stranger Things",
+                status: "plan-to-watch",
+                rating: null,
+                genre: "Sci-Fi Horror",
+                notes: "Everyone says it's amazing. Need to start this soon!",
+                dateAdded: new Date()
+            }
+        ];
+
+        function addShow() {
+            const title = document.getElementById('showTitle').value.trim();
+            const status = document.getElementById('showStatus').value;
+            const rating = document.getElementById('showRating').value;
+            const genre = document.getElementById('showGenre').value.trim();
+            const notes = document.getElementById('showNotes').value.trim();
+
+            if (!title || !status) {
+                alert('Please fill in at least the show title and status!');
+                return;
+            }
+
+            const newShow = {
+                id: Date.now(),
+                title: title,
+                status: status,
+                rating: rating ? parseInt(rating) : null,
+                genre: genre || 'Not specified',
+                notes: notes || 'No notes added',
+                dateAdded: new Date()
+            };
+
+            shows.unshift(newShow);
+
+            // Clear form
+            document.getElementById('showTitle').value = '';
+            document.getElementById('showStatus').value = '';
+            document.getElementById('showRating').value = '';
+            document.getElementById('showGenre').value = '';
+            document.getElementById('showNotes').value = '';
+
+            renderShows();
+        }
+
+        function deleteShow(id) {
+            if (confirm('Are you sure you want to remove this show from your tracker?')) {
+                shows = shows.filter(show => show.id !== id);
+                renderShows();
+            }
+        }
+
+        function editShow(id) {
+            const show = shows.find(s => s.id === id);
+            if (!show) return;
+
+            const newRating = prompt(`Rate "${show.title}" (1-10):`, show.rating || '');
+            const newNotes = prompt(`Notes for "${show.title}":`, show.notes);
+
+            if (newRating !== null) {
+                show.rating = newRating ? parseInt(newRating) : null;
+            }
+            if (newNotes !== null) {
+                show.notes = newNotes.trim() || 'No notes added';
+            }
+
+            renderShows();
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'watching': 'bg-green-100 text-green-800 border-green-200',
+                'completed': 'bg-blue-100 text-blue-800 border-blue-200',
+                'plan-to-watch': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                'dropped': 'bg-red-100 text-red-800 border-red-200'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'watching': 'Currently Watching',
+                'completed': 'Completed',
+                'plan-to-watch': 'Plan to Watch',
+                'dropped': 'Dropped'
+            };
+            return texts[status] || status;
+        }
+
+        function filterShows(status) {
+            currentFilter = status;
+
+            // Update button styles
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+                btn.className = 'px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown';
+            });
+            document.getElementById(`filter-${status}`).className = 'px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-dark-green text-white';
+
+            renderShows();
+        }
+
+        function renderShows() {
+            const filteredShows = currentFilter === 'all' 
+                ? shows 
+                : shows.filter(show => show.status === currentFilter);
+
+            const showsList = document.getElementById('showsList');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredShows.length === 0) {
+                showsList.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            showsList.innerHTML = filteredShows.map(show => `
+                <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-dark-green hover:shadow-xl transition-shadow duration-200">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-dark-green mb-2">${show.title}</h3>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(show.status)}">
+                                    ${getStatusText(show.status)}
+                                </span>
+                                <span class="px-3 py-1 rounded-full text-sm font-medium bg-light-brown text-white">
+                                    ${show.genre}
+                                </span>
+                                ${show.rating ? `
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-dark-green text-white">
+                                        ⭐ ${show.rating}/10
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="flex gap-2 ml-4">
+                            <button onclick="editShow(${show.id})" 
+                                    class="px-3 py-1 bg-medium-green text-white rounded hover:bg-light-green transition-colors duration-200 text-sm">
+                                Edit
+                            </button>
+                            <button onclick="deleteShow(${show.id})" 
+                                    class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-200 text-sm">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-beige p-4 rounded-lg">
+                        <p class="text-medium-brown font-medium mb-1">Notes:</p>
+                        <p class="text-dark-brown">${show.notes}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize the app
+        renderShows();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9676f60c928bae20',t:'MTc1MzkwMDU4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
