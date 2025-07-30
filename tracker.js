@@ -1,31 +1,50 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- USER AUTHENTICATION & GATEKEEPER ---
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+        // If no user is signed in, redirect to the login page
+        window.location.href = 'index.html';
+        return; // Stop executing the rest of the script
+    }
+    // Create a unique storage key for this user's data
+    const storageKey = `myTVShows_${currentUser}`;
+
     // --- STATE MANAGEMENT ---
     let shows = [];
     let currentFilter = 'all';
     let editingShowId = null;
 
     // --- DOM ELEMENTS ---
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const signOutBtn = document.getElementById('signOutBtn');
     const addShowForm = document.getElementById('addShowForm');
     const showsList = document.getElementById('showsList');
     const emptyState = document.getElementById('emptyState');
     const filterContainer = document.getElementById('filter-container');
-
-    // Modal Elements
     const editModal = document.getElementById('editModal');
     const editShowForm = document.getElementById('editShowForm');
     const cancelEditBtn = document.getElementById('cancelEdit');
     const removeImageBtn = document.getElementById('removeImageBtn');
 
-    // --- DATA PERSISTENCE ---
+    // --- DATA PERSISTENCE (Now User-Specific) ---
     function saveShows() {
-        localStorage.setItem('myTVShows', JSON.stringify(shows));
+        localStorage.setItem(storageKey, JSON.stringify(shows));
     }
 
     function loadShows() {
-        const savedShows = localStorage.getItem('myTVShows');
+        const savedShows = localStorage.getItem(storageKey);
         shows = savedShows ? JSON.parse(savedShows) : [];
     }
+
+    // --- EVENT LISTENERS ---
+    signOutBtn.addEventListener('click', () => {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+    });
+
+    // The rest of your functions (renderShows, addShow, etc.) and event listeners remain the same
+    // as the last version I provided you. Just copy them here.
 
     // --- RENDERING & UI ---
     function renderShows() {
@@ -87,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- CORE LOGIC (Add, Edit, Delete) ---
     async function addShow(e) {
         e.preventDefault();
         const title = document.getElementById('showTitle').value.trim();
@@ -127,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- EDIT MODAL LOGIC ---
     function openEditModal(id) {
         const show = shows.find(s => s.id === id);
         if (!show) return;
@@ -166,12 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (showIndex === -1) return;
 
         const posterFile = document.getElementById('editShowPoster').files[0];
-        let imageUrl = shows[showIndex].image; // Keep old image by default
+        let imageUrl = shows[showIndex].image;
 
         if (posterFile) {
             imageUrl = await readFileAsDataURL(posterFile);
         } else if (document.getElementById('editImagePreview').classList.contains('hidden')) {
-            // This means the "Remove Image" button was clicked
             imageUrl = null;
         }
 
@@ -190,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeEditModal();
     }
 
-    // --- HELPER FUNCTIONS ---
     function readFileAsDataURL(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -209,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
 
-    // --- EVENT LISTENERS ---
     addShowForm.addEventListener('submit', addShow);
 
     filterContainer.addEventListener('click', (e) => {
@@ -233,10 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
     removeImageBtn.addEventListener('click', () => {
         document.getElementById('editImagePreview').classList.add('hidden');
         removeImageBtn.classList.add('hidden');
-        document.getElementById('editShowPoster').value = ''; // Clear the file input
+        document.getElementById('editShowPoster').value = '';
     });
 
     // --- INITIALIZATION ---
+    welcomeMessage.textContent = `Welcome, ${currentUser}!`;
     loadShows();
     renderShows();
 });
