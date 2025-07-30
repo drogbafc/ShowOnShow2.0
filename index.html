@@ -5,38 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome - TV Show Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Added this configuration to ensure custom colors are available
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-green': '#2D4A2B',
+                        'medium-green': '#3A5F38',
+                        'dark-brown': '#3E2723',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="bg-gradient-to-br from-black via-[#3d2c0b] to-yellow-700 text-white min-h-screen flex flex-col font-sans">
 
     <header class="p-6 flex justify-between items-center">
         <h1 class="text-2xl font-bold">ShowTracker</h1>
-
-        <!-- Your Logo -->
         <div class="bg-white rounded-full p-1 shadow-lg">
              <img src="ipiremote.png" alt="IPI Remote Logo" class="h-10">
         </div>
     </header>
 
     <main class="flex-grow flex items-center justify-center">
-        <div class="text-center w-full max-w-lg p-8">
-            <h2 class="text-6xl font-bold mb-12">A Show for Show</h2>
-
-            <form id="loginForm" class="bg-black bg-opacity-20 p-8 rounded-lg shadow-2xl">
-                <label for="username" class="text-lg mb-4 block">Enter a username to sign in or create an account</label>
-                <div class="flex items-center gap-4">
-                     <input type="text" id="username" placeholder="e.g., DrogbaFC" required
+        <div class="text-center w-full max-w-sm p-4">
+            <h2 id="formTitle" class="text-4xl font-bold mb-8">Sign In</h2>
+            
+            <form id="authForm" class="bg-black bg-opacity-20 p-8 rounded-lg shadow-2xl space-y-6">
+                <div>
+                    <label for="username" class="sr-only">Username</label>
+                    <input type="text" id="username" placeholder="Username" required
                            class="w-full bg-white bg-opacity-10 text-white px-4 py-3 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
-                    <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-black font-bold px-6 py-3 rounded-lg transition-colors">
-                        →
-                    </button>
                 </div>
+                <div>
+                    <label for="password" class="sr-only">Password</label>
+                    <input type="password" id="password" placeholder="Password" required
+                           class="w-full bg-white bg-opacity-10 text-white px-4 py-3 border border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                </div>
+                
+                <button id="submitBtn" type="submit" class="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-bold px-6 py-3 rounded-lg transition-colors text-lg">
+                    Sign In
+                </button>
             </form>
+            
+            <div class="mt-6">
+                <p id="toggleText" class="text-gray-300">
+                    Don't have an account? 
+                    <button id="toggleBtn" class="font-bold text-yellow-500 hover:underline">Create one</button>
+                </p>
+            </div>
         </div>
     </main>
 
     <footer class="text-center p-4 text-white text-opacity-50 text-sm">
         IPI Productions
     </footer>
+
+    <!-- Notification Modal -->
+    <div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-sm text-center border-t-8 border-yellow-500">
+            <div class="text-4xl mb-4">❌</div>
+            <p id="notificationMessage" class="text-lg text-dark-brown mb-6"></p>
+            <button id="notificationCloseBtn" class="px-6 py-2 bg-dark-green text-white rounded-lg hover:bg-medium-green">OK</button>
+        </div>
+    </div>
 
     <script src="login.js"></script>
 </body>

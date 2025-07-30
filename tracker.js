@@ -6,10 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
         return;
     }
-    const storageKey = `myTVShows_${currentUser}`;
-    const listsStorageKey = `myLists_${currentUser}`;
 
     // --- STATE MANAGEMENT ---
+    let allUsers = {};
     let shows = [];
     let lists = {};
     let currentFilter = 'all';
@@ -45,11 +44,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmActionBtn = document.getElementById('confirmActionBtn');
     const confirmCancelBtn = document.getElementById('confirmCancelBtn');
 
-    // --- DATA PERSISTENCE ---
-    function saveShows() { localStorage.setItem(storageKey, JSON.stringify(shows)); }
-    function loadShows() { const data = localStorage.getItem(storageKey); shows = data ? JSON.parse(data) : []; }
-    function saveLists() { localStorage.setItem(listsStorageKey, JSON.stringify(lists)); }
-    function loadLists() { const data = localStorage.getItem(listsStorageKey); lists = data ? JSON.parse(data) : {}; }
+    // --- DATA PERSISTENCE (UPDATED) ---
+    function loadData() {
+        allUsers = JSON.parse(localStorage.getItem('users')) || {};
+        const userData = allUsers[currentUser];
+        if (userData) {
+            shows = userData.shows || [];
+            lists = userData.lists || {};
+        }
+    }
+
+    function saveData() {
+        if (allUsers[currentUser]) {
+            allUsers[currentUser].shows = shows;
+            allUsers[currentUser].lists = lists;
+        }
+        localStorage.setItem('users', JSON.stringify(allUsers));
+    }
 
     // --- MAIN RENDER FUNCTION ---
     function render() {
@@ -132,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.stopPropagation();
                 showConfirmation(`Are you sure you want to delete the "${listName}" list?`, () => {
                     delete lists[listName];
-                    saveLists();
+                    saveData();
                     if(currentFilter === listName) currentFilter = 'all';
                     render();
                 });
@@ -195,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
             notes: document.getElementById('showNotes').value.trim()
         };
         shows.unshift(newShow);
-        saveShows();
+        saveData();
         render();
         addShowForm.reset();
         showNotification('Show added successfully!', 'success');
@@ -208,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const listName = listNameInput.value.trim();
         if (listName && !lists[listName]) {
             lists[listName] = [];
-            saveLists();
+            saveData();
             render();
             listNameInput.value = '';
         } else if (lists[listName]) {
@@ -240,8 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Object.keys(lists).forEach(listName => {
                     lists[listName] = lists[listName].filter(showId => showId !== id);
                 });
-                saveShows();
-                saveLists();
+                saveData();
                 render();
             });
         } else if (target.classList.contains('edit-btn')) {
@@ -263,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (showIdToAdd && lists[chosenList]) {
             if (!lists[chosenList].includes(showIdToAdd)) {
                 lists[chosenList].push(showIdToAdd);
-                saveLists();
+                saveData();
                 showNotification(`Show added to "${chosenList}"`, 'success');
             } else {
                 showNotification("This show is already in that list.", 'error');
@@ -352,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
             notes: document.getElementById('editShowNotes').value.trim(),
             image: imageUrl
         };
-        saveShows();
+        saveData();
         render();
         closeEditModal();
     }
@@ -377,7 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INITIALIZATION ---
     welcomeMessage.textContent = `Welcome, ${currentUser}!`;
-    loadShows();
-    loadLists();
+    loadData();
     render();
 });
