@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const editModal = document.getElementById('editModal');
     const editShowForm = document.getElementById('editShowForm');
     const cancelEditBtn = document.getElementById('cancelEdit');
+    const removeImageBtn = document.getElementById('removeImageBtn');
 
     // --- DATA PERSISTENCE ---
     function saveShows() {
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ? shows 
             : shows.filter(show => show.status === currentFilter);
 
-        showsList.innerHTML = ''; // Clear previous list
+        showsList.innerHTML = '';
 
         if (filteredShows.length === 0) {
             emptyState.classList.remove('hidden');
@@ -45,24 +46,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 const statusColor = getStatusColor(show.status);
                 const statusText = getStatusText(show.status);
 
+                const posterHTML = show.image 
+                    ? `<img src="${show.image}" alt="Poster for ${show.title}" class="w-28 h-40 object-cover rounded shadow-md flex-shrink-0">`
+                    : `<div class="w-28 h-40 bg-gray-200 rounded flex-shrink-0 flex items-center justify-center text-gray-400 text-xs text-center p-2">No Poster</div>`;
+
                 showElement.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
+                    <div class="flex gap-5 items-start">
+                        ${posterHTML}
                         <div class="flex-1">
-                            <h3 class="text-xl font-bold text-dark-green mb-2">${show.title}</h3>
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-bold text-dark-green mb-2 pr-2">${show.title}</h3>
+                                <div class="flex gap-2 ml-4 flex-shrink-0">
+                                    <button data-id="${show.id}" class="edit-btn px-3 py-1 bg-medium-green text-white rounded hover:bg-light-green transition-colors duration-200 text-sm">Edit</button>
+                                    <button data-id="${show.id}" class="delete-btn px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-200 text-sm">Remove</button>
+                                </div>
+                            </div>
                             <div class="flex flex-wrap gap-2 mb-3">
                                 <span class="px-3 py-1 rounded-full text-sm font-medium border ${statusColor}">${statusText}</span>
                                 <span class="px-3 py-1 rounded-full text-sm font-medium bg-light-brown text-white">${show.genre || 'N/A'}</span>
                                 ${show.rating ? `<span class="px-3 py-1 rounded-full text-sm font-medium bg-dark-green text-white">⭐ ${show.rating}/10</span>` : ''}
                             </div>
+                            <div class="bg-beige p-3 rounded-lg mt-4">
+                                <p class="text-medium-brown font-medium mb-1 text-sm">Notes:</p>
+                                <p class="text-dark-brown whitespace-pre-wrap text-sm">${show.notes || 'No notes added.'}</p>
+                            </div>
                         </div>
-                        <div class="flex gap-2 ml-4 flex-shrink-0">
-                            <button data-id="${show.id}" class="edit-btn px-3 py-1 bg-medium-green text-white rounded hover:bg-light-green transition-colors duration-200 text-sm">Edit</button>
-                            <button data-id="${show.id}" class="delete-btn px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-200 text-sm">Remove</button>
-                        </div>
-                    </div>
-                    <div class="bg-beige p-4 rounded-lg">
-                        <p class="text-medium-brown font-medium mb-1">Notes:</p>
-                        <p class="text-dark-brown whitespace-pre-wrap">${show.notes || 'No notes added.'}</p>
                     </div>
                 `;
                 showsList.appendChild(showElement);
@@ -73,48 +81,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateFilterButtons() {
         document.querySelectorAll('#filter-container button').forEach(btn => {
-            const filter = btn.getAttribute('data-filter');
-            if (filter === currentFilter) {
-                btn.className = 'px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-dark-green text-white';
-            } else {
-                btn.className = 'px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown';
-            }
+            btn.className = btn.getAttribute('data-filter') === currentFilter
+                ? 'px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-dark-green text-white'
+                : 'px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown';
         });
     }
 
     // --- CORE LOGIC (Add, Edit, Delete) ---
-    function addShow(e) {
+    async function addShow(e) {
         e.preventDefault();
-        const titleInput = document.getElementById('showTitle');
-        const ratingInput = document.getElementById('showRating');
-
-        // Reset previous validation errors
-        titleInput.classList.remove('border-red-500');
-        ratingInput.classList.remove('border-red-500');
-
-        const title = titleInput.value.trim();
+        const title = document.getElementById('showTitle').value.trim();
         const status = document.getElementById('showStatus').value;
-        const rating = ratingInput.value;
-
-        // Validation
         if (!title || !status) {
             alert('Please fill in the show title and status.');
-            if (!title) titleInput.classList.add('border-red-500');
             return;
         }
-        if (rating && (parseInt(rating) < 1 || parseInt(rating) > 10)) {
-            alert('Rating must be between 1 and 10.');
-            ratingInput.classList.add('border-red-500');
-            return;
+
+        const posterFile = document.getElementById('showPoster').files[0];
+        let imageUrl = null;
+        if (posterFile) {
+            imageUrl = await readFileAsDataURL(posterFile);
         }
 
         const newShow = {
             id: Date.now(),
             title: title,
             status: status,
-            rating: rating ? parseInt(rating) : null,
+            rating: parseInt(document.getElementById('showRating').value) || null,
             genre: document.getElementById('showGenre').value.trim(),
-            notes: document.getElementById('showNotes').value.trim()
+            notes: document.getElementById('showNotes').value.trim(),
+            image: imageUrl
         };
 
         shows.unshift(newShow);
@@ -143,6 +139,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('editShowGenre').value = show.genre || '';
         document.getElementById('editShowNotes').value = show.notes || '';
 
+        const preview = document.getElementById('editImagePreview');
+        if (show.image) {
+            preview.src = show.image;
+            preview.classList.remove('hidden');
+            removeImageBtn.classList.remove('hidden');
+        } else {
+            preview.classList.add('hidden');
+            removeImageBtn.classList.add('hidden');
+        }
+
         editModal.classList.remove('hidden');
     }
 
@@ -152,26 +158,31 @@ document.addEventListener('DOMContentLoaded', () => {
         editShowForm.reset();
     }
 
-    function handleEditSave(e) {
+    async function handleEditSave(e) {
         e.preventDefault();
         if (!editingShowId) return;
 
         const showIndex = shows.findIndex(s => s.id === editingShowId);
         if (showIndex === -1) return;
 
-        const rating = document.getElementById('editShowRating').value;
-        if (rating && (parseInt(rating) < 1 || parseInt(rating) > 10)) {
-            alert('Rating must be between 1 and 10.');
-            return;
+        const posterFile = document.getElementById('editShowPoster').files[0];
+        let imageUrl = shows[showIndex].image; // Keep old image by default
+
+        if (posterFile) {
+            imageUrl = await readFileAsDataURL(posterFile);
+        } else if (document.getElementById('editImagePreview').classList.contains('hidden')) {
+            // This means the "Remove Image" button was clicked
+            imageUrl = null;
         }
 
         shows[showIndex] = {
             ...shows[showIndex],
             title: document.getElementById('editShowTitle').value.trim(),
             status: document.getElementById('editShowStatus').value,
-            rating: rating ? parseInt(rating) : null,
+            rating: parseInt(document.getElementById('editShowRating').value) || null,
             genre: document.getElementById('editShowGenre').value.trim(),
             notes: document.getElementById('editShowNotes').value.trim(),
+            image: imageUrl
         };
 
         saveShows();
@@ -180,13 +191,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- HELPER FUNCTIONS ---
+    function readFileAsDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
     function getStatusColor(status) {
-        const colors = {
-            watching: 'bg-green-100 text-green-800 border-green-200',
-            completed: 'bg-blue-100 text-blue-800 border-blue-200',
-            'plan-to-watch': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-            dropped: 'bg-red-100 text-red-800 border-red-200'
-        };
+        const colors = { watching: 'bg-green-100 text-green-800 border-green-200', completed: 'bg-blue-100 text-blue-800 border-blue-200', 'plan-to-watch': 'bg-yellow-100 text-yellow-800 border-yellow-200', dropped: 'bg-red-100 text-red-800 border-red-200' };
         return colors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
     }
 
@@ -205,17 +220,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     showsList.addEventListener('click', (e) => {
-        const id = parseInt(e.target.getAttribute('data-id'));
-        if (e.target.classList.contains('delete-btn')) {
-            deleteShow(id);
-        }
-        if (e.target.classList.contains('edit-btn')) {
-            openEditModal(id);
-        }
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const id = parseInt(target.getAttribute('data-id'));
+        if (target.classList.contains('delete-btn')) deleteShow(id);
+        if (target.classList.contains('edit-btn')) openEditModal(id);
     });
 
     editShowForm.addEventListener('submit', handleEditSave);
     cancelEditBtn.addEventListener('click', closeEditModal);
+    removeImageBtn.addEventListener('click', () => {
+        document.getElementById('editImagePreview').classList.add('hidden');
+        removeImageBtn.classList.add('hidden');
+        document.getElementById('editShowPoster').value = ''; // Clear the file input
+    });
 
     // --- INITIALIZATION ---
     loadShows();

@@ -44,7 +44,7 @@
                         <option value="dropped">Dropped</option>
                     </select>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label class="block text-medium-brown font-medium mb-1">Rating (1-10)</label>
                         <input type="number" id="showRating" min="1" max="10" placeholder="Optional"
@@ -52,13 +52,18 @@
                     </div>
                     <div>
                         <label class="block text-medium-brown font-medium mb-1">Genre</label>
-                        <input type="text" id="showGenre" placeholder="e.g., Drama, Comedy"
+                        <input type="text" id="showGenre" placeholder="e.g., Drama"
                                class="w-full px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
+                    </div>
+                     <div>
+                        <label class="block text-medium-brown font-medium mb-1">Poster</label>
+                        <input type="file" id="showPoster" accept="image/*"
+                               class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-beige file:text-dark-green hover:file:bg-opacity-80">
                     </div>
                 </div>
                 <div class="mb-4">
                     <label class="block text-medium-brown font-medium mb-1">Notes</label>
-                    <textarea id="showNotes" rows="3" placeholder="Add your thoughts, favorite episodes, etc..."
+                    <textarea id="showNotes" rows="3" placeholder="Add your thoughts..."
                               class="w-full px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none resize-none"></textarea>
                 </div>
                 <button type="submit"
@@ -69,7 +74,7 @@
         </div>
 
         <div id="filter-container" class="flex flex-wrap gap-2 mb-6">
-            <button data-filter="all" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-dark-green text-white">All Shows</button>
+             <button data-filter="all" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-dark-green text-white">All Shows</button>
             <button data-filter="watching" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown">Currently Watching</button>
             <button data-filter="completed" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown">Completed</button>
             <button data-filter="plan-to-watch" class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-light-brown text-white hover:bg-medium-brown">Plan to Watch</button>
@@ -87,37 +92,32 @@
     </div>
     
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md border-t-8 border-dark-green">
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg border-t-8 border-dark-green">
             <h2 class="text-2xl font-semibold text-dark-green mb-4">Edit Show</h2>
             <form id="editShowForm">
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <input type="text" id="editShowTitle" placeholder="Show Title"
-                           class="px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
-                    <select id="editShowStatus" class="px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
-                        <option value="watching">Currently Watching</option>
-                        <option value="completed">Completed</option>
-                        <option value="plan-to-watch">Plan to Watch</option>
-                        <option value="dropped">Dropped</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-medium-brown font-medium mb-1">Rating (1-10)</label>
-                        <input type="number" id="editShowRating" min="1" max="10" placeholder="Optional"
-                               class="w-full px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
+                <div class="flex gap-4">
+                     <div class="w-1/3">
+                        <img id="editImagePreview" src="" alt="Poster preview" class="rounded shadow-md w-full h-auto object-cover mb-2">
+                        <input type="file" id="editShowPoster" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-beige file:text-dark-green hover:file:bg-opacity-80">
+                        <button type="button" id="removeImageBtn" class="w-full mt-2 text-xs text-red-600 hover:text-red-800">Remove Image</button>
                     </div>
-                    <div>
-                        <label class="block text-medium-brown font-medium mb-1">Genre</label>
-                        <input type="text" id="editShowGenre" placeholder="e.g., Drama, Comedy"
-                               class="w-full px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none">
+                    <div class="w-2/3">
+                        <input type="text" id="editShowTitle" placeholder="Show Title" class="w-full mb-2 px-4 py-2 border-2 border-light-brown rounded-lg">
+                        <select id="editShowStatus" class="w-full mb-2 px-4 py-2 border-2 border-light-brown rounded-lg">
+                            <option value="watching">Currently Watching</option>
+                            <option value="completed">Completed</option>
+                            <option value="plan-to-watch">Plan to Watch</option>
+                            <option value="dropped">Dropped</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                             <input type="number" id="editShowRating" min="1" max="10" placeholder="Rating" class="w-full px-4 py-2 border-2 border-light-brown rounded-lg">
+                             <input type="text" id="editShowGenre" placeholder="Genre" class="w-full px-4 py-2 border-2 border-light-brown rounded-lg">
+                        </div>
+                         <textarea id="editShowNotes" rows="5" class="w-full px-4 py-2 border-2 border-light-brown rounded-lg resize-none"></textarea>
                     </div>
                 </div>
-                <div class="mb-6">
-                    <label class="block text-medium-brown font-medium mb-1">Notes</label>
-                    <textarea id="editShowNotes" rows="4"
-                              class="w-full px-4 py-3 border-2 border-light-brown rounded-lg focus:border-dark-green focus:outline-none resize-none"></textarea>
-                </div>
-                <div class="flex justify-end gap-4">
+
+                <div class="flex justify-end gap-4 mt-6">
                     <button type="button" id="cancelEdit" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancel</button>
                     <button type="submit" class="px-6 py-2 bg-dark-green text-white rounded-lg hover:bg-medium-green">Save Changes</button>
                 </div>
