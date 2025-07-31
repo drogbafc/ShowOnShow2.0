@@ -1,8 +1,6 @@
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-// This script needs access to the initialized Firebase app.
-// We'll wait for the main firebase-app script in index.html to load.
 const checkFirebase = setInterval(() => {
     if (window.firebaseApp) {
         clearInterval(checkFirebase);
@@ -26,6 +24,9 @@ function initializeApp() {
     let confirmAction = null;
 
     // --- DOM ELEMENTS ---
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const addShowBtn = document.getElementById('addShowBtn');
+    const createListBtn = document.getElementById('createListBtn');
     const welcomeMessage = document.getElementById('welcomeMessage');
     const signOutBtn = document.getElementById('signOutBtn');
     const addShowForm = document.getElementById('addShowForm');
@@ -51,6 +52,10 @@ function initializeApp() {
     const confirmActionBtn = document.getElementById('confirmActionBtn');
     const confirmCancelBtn = document.getElementById('confirmCancelBtn');
 
+    // --- INITIAL UI STATE ---
+    addShowBtn.disabled = true;
+    createListBtn.disabled = true;
+
     // --- FIREBASE AUTH LISTENER ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -58,6 +63,9 @@ function initializeApp() {
             welcomeMessage.textContent = `Welcome, ${user.email}!`;
             await loadData();
             render();
+            addShowBtn.disabled = false;
+            createListBtn.disabled = false;
+            loadingOverlay.classList.add('hidden');
         } else {
             window.location.href = 'index.html';
         }
@@ -170,9 +178,6 @@ function initializeApp() {
         const status = document.getElementById('showStatus').value;
         if (!title || !status) return showNotification('Please fill in the show title and status.', 'error');
 
-        // ===================================================================
-        // BUG FIX IS HERE: Added checks for `s` and `s.title`
-        // ===================================================================
         if (shows.some(s => s && s.title && s.title.toLowerCase() === title.toLowerCase())) {
             return showNotification('A show with this title has already been added.', 'error');
         }
