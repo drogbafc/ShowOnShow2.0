@@ -56,7 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
             createUserWithEmailAndPassword(auth, email, password)
                 .then(async (userCredential) => {
                     const user = userCredential.user;
-                    await setDoc(doc(db, "users", user.uid), { shows: [], lists: {} });
+                    // Create an empty user document. Data will be stored in subcollections.
+                    await setDoc(doc(db, "users", user.uid), { email: user.email, createdAt: new Date() });
                     window.location.href = 'tracker.html';
                 })
                 .catch((error) => {

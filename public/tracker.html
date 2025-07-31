@@ -24,8 +24,7 @@
     </script>
 </head>
 <body class="bg-gradient-to-br from-black via-[#3d2c0b] to-yellow-700 min-h-screen font-sans">
-    
-    <!-- Loading Overlay -->
+
     <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-50">
         <div class="text-white text-2xl animate-pulse">Loading Your Shows...</div>
         <p class="text-gray-400 mt-2">Please wait a moment.</p>
@@ -114,7 +113,7 @@
             <h3 class="text-xl font-semibold text-gray-200 mb-2">No shows in this category!</h3>
             <p class="text-gray-300">Add a new show or select a different filter.</p>
         </div>
-    
+
         <!-- All Modals -->
         <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-lg border-t-8 border-dark-green">
@@ -178,22 +177,26 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- Firebase SDK Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        // =====================================================================================
-        // PASTE YOUR FIREBASE CONFIGURATION OBJECT HERE
-        // =====================================================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyCTDOxMfgZxzORVcUZapodpNYmgwOEm-eo",
-              authDomain: "ipishowtracker.firebaseapp.com",
-              projectId: "ipishowtracker",
-              storageBucket: "ipishowtracker.firebasestorage.app",
-              messagingSenderId: "789432982268",
-              appId: "1:789432982268:web:faa0f43cd3fbc6509c5579",
-        };
+        // This is the new import for Storage
+        import { getStorage } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
+
+        const firebaseConfig = {apiKey: "AIzaSyCTDOxMfgZxzORVcUZapodpNYmgwOEm-eo",
+                                           authDomain: "ipishowtracker.firebaseapp.com",
+                                           projectId: "ipishowtracker",
+                                           storageBucket: "ipishowtracker.appspot.com",
+                                           messagingSenderId: "789432982268",
+                                           appId: "1:789432982268:web:faa0f43cd3fbc6509c5579",
+                                       };
         const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app); // Initialize Storage
+
+        // Make both available globally
         window.firebaseApp = app;
+        window.firebaseStorage = storage;
     </script>
     <script src="tracker.js" type="module"></script>
 </body>
